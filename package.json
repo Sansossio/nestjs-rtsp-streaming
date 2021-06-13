@@ -35,6 +35,7 @@
     "@nestjs/platform-socket.io": "^7.6.17",
     "@nestjs/serve-static": "^2.1.4",
     "@nestjs/websockets": "^7.6.17",
+    "class-transformer": "^0.4.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "~6.6.3",
     "tslib": "^2.0.0"

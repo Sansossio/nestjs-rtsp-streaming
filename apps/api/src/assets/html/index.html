@@ -21,7 +21,7 @@
   const socket = io()
   let url = ''
   socket.on('connect', function () {
-    socket.emit('get-stream')
+    socket.emit('get-stream', 'random')
   })
   socket.on('video-data', function (data) {
     const bytes = new Uint8Array(data.buffer)
