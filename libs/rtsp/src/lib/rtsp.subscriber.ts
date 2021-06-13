@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { spawn } from 'child_process'
-import { Observable } from 'rxjs'
+import { Observable, of } from 'rxjs'
+import { mergeMap } from 'rxjs/operators'
 import { RtspConfig } from './rtsp.config'
 
 const DEFAULT_FFMPEG_CMD = 'ffmpeg'
-const LOGGER_CONTEXT = 'RTSP_SUBSCRIBER'
+const LOGGER_CONTEXT = 'RtspSubscriber'
 
 @Injectable()
 export class RtspSubscriber {
@@ -40,15 +41,24 @@ export class RtspSubscriber {
     ]
   }
 
-  listen (): Observable<Buffer> {
-    return new Observable((subscribe) => {
+  private connectToServer () {
+    this.logger.log(`Trying connect to server: ${this.config.streamingConfig.input}`)
+    let connected = false
+    return new Observable<{ buffer?: Buffer, error: boolean }>((subscribe) => {
       const command = spawn(this.ffmpegCmd, this.getArgs())
 
       command.stdout.on('data', (data) => {
+        if (!connected) {
+          this.logger.log(`Connected to server: ${this.config.streamingConfig.input}`)
+        }
+
+        connected = true
+
         if (data.length <= 1) {
           return
         }
-        const buff = Buffer.concat([Buffer.from(''), data])
+
+        const buffer = Buffer.concat([Buffer.from(''), data])
 
         const offset = data[data.length - 2].toString(16)
         const offset2 = data[data.length - 1].toString(16)
@@ -56,12 +66,37 @@ export class RtspSubscriber {
         if (offset !== 'ff' || offset2 !== 'd9') {
           return
         }
-        subscribe.next(buff)
+
+        subscribe.next({ buffer, error: false })
       })
 
-      command.stderr.on('data', data => this.logger.error(data))
-      command.on('error', data => this.logger.error(data))
-      command.on('close', code => this.logger.warn(`Close with code ${code}`))
+      command.stderr.on('data', data => {
+        this.logger.error(data)
+        subscribe.next({ error: true })
+      })
+      command.on('error', data => {
+        this.logger.error(data)
+        subscribe.next({ error: true })
+      })
+      command.on('close', code => {
+        this.logger.warn(`Close with code ${code}`)
+        subscribe.next({ error: true })
+      })
+    })
+  }
+
+  connect (): Observable<Buffer> {
+    return new Observable((subscribe) => {
+      this.connectToServer()
+        .pipe(
+          mergeMap((data) => {
+            if (data.error) {
+              return this.connect()
+            }
+            return of(data)
+          })
+        )
+        .subscribe(data => subscribe.next(data.buffer as Buffer))
     })
   }
 }

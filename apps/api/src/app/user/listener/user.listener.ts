@@ -30,7 +30,7 @@ export class UserListener {
       })
 
       subscribe
-        .listen()
+        .connect()
         .subscribe(async buffer => this.handleStream(server.name, buffer))
     }
   }
