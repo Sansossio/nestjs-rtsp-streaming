@@ -24,7 +24,7 @@ Module **not** needed to use this library.
 
 `nx generate @nrwl/workspace:library mylib`
 
-Import from `@peooplev2/mylib`.
+Import from `@nestjs-rtsp-streaming/mylib`.
 
 ### Generate a Nest library
 
@@ -32,9 +32,9 @@ This should be preferred option to create Nest libraries since this command add 
 
 `nx generate @nrwl/nest:library my-lib`
 
-Use prefix `@peooplev2`.
+Use prefix `@nestjs-rtsp-streaming`.
 
-Import from `@peooplev2/mylib`.
+Import from `@nestjs-rtsp-streaming/mylib`.
 
 ### Delete lib, app
 
