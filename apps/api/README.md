@@ -2,5 +2,5 @@
 
 ## Environment variables
 ```env
-APP_PORT=3333
+APP_PORT=3000
 ```
