@@ -13,12 +13,22 @@
   <div id="online-users">
     0 users online
   </div>
+  <div id="motion-sensor"></div>
 </body>
 <script src="http://cdn.shinobi.video/js/socket.io.js"></script>
 <script src='./js/player.js'></script>
 <script>
   // Global state
   const players = []
+  const motionSensors = []
+
+  function renderMotionSensorsData () {
+    const text = motionSensors.reduce((prev, curr) => {
+      prev += `Camara: ${curr.name} <b>${curr.motion ? 'ha' : 'no ha'}</b> detectado movimiento<br>`
+      return prev
+    }, '')
+    document.getElementById('motion-sensor').innerHTML = text
+  }
 
   function getOrCreatePlayer (name) {
     const exists = players.find(p => p.name === name)
@@ -44,8 +54,20 @@
   socket.on('online-users', function (count) {
     document.getElementById('online-users').innerHTML = `${count} users online`
   })
+  socket.on('camera-motion-sensor', function (event) {
+    const existsIndex = motionSensors.findIndex(ms => ms.name === event.name)
+    if (existsIndex > -1) {
+      motionSensors[existsIndex].motion = event.motion
+    } else {
+      motionSensors.push(event)
+    }
+
+    renderMotionSensorsData()
+
+  })
   socket.on('cameras', function (cameras) {
     for (const camera of cameras) {
+      socket.emit('join-to-room', `camera-${camera.name}`)
       const canvas = getOrCreatePlayer(camera.name)
       loadPlayer({
         url: `ws://${location.hostname}:3001/stream/camera?rtsp=${encodeURIComponent(camera.input)}`,

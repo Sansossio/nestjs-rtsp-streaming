@@ -1,6 +1,5 @@
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { RtspSubscriber } from '@nestjs-rtsp-streaming/rtsp'
 import { CAMERAS_CONFIG } from '../camera.config'
 import { Onvif } from '@nestjs-rtsp-streaming/onvif'
 
@@ -12,6 +11,10 @@ export class CameraListener {
 
   constructor () {
     void this.initializeCameras()
+  }
+
+  private getRoomFromCameraName (name: string) {
+    return `camera-${name}`
   }
 
   private async initializeCameras () {
@@ -33,20 +36,7 @@ export class CameraListener {
       })
     )
 
-    void this.sendRtspToSockets()
     void this.detectMotion()
-  }
-
-  private async sendRtspToSockets () {
-    for (const server of this.camerasRtsp) {
-      const subscribe = new RtspSubscriber({})
-
-      subscribe
-        .getVideoBuffer({
-          input: server.input
-        })
-        .subscribe(async buffer => this.handleStream(server.name, buffer))
-    }
   }
 
   private async detectMotion () {
@@ -57,18 +47,12 @@ export class CameraListener {
       server.onvif
         .motionSensor()
         .subscribe((motion) => {
-          console.log({
-            camera: server.name,
+          this.server.to(this.getRoomFromCameraName(server.name)).emit('camera-motion-sensor', {
+            name: server.name,
             motion
           })
         })
     }
-  }
-
-  private async handleStream (name: string, buffer: Buffer) {
-    const room = `camera-${name}`
-
-    this.server.to(room).emit('camera-data', { name, buffer })
   }
 
   @SubscribeMessage('get-cameras')
