@@ -3,7 +3,8 @@ import { RegisterCamera } from './dto/register-camera'
 import { Observable } from 'rxjs'
 
 const DEFAULT_ONVIF_PORT = 2020
-const IsMotionEventName = 'IsMotion'
+const IS_MOTION_EVENT_NAME = 'IsMotion'
+
 export class Onvif {
   private camInstance: Cam
 
@@ -52,15 +53,16 @@ export class Onvif {
   }
 
   motionSensor () {
-    return new Observable((subscriber) => {
-      this.camInstance.on('event', (a) => {
+    return new Observable<boolean>((subscriber) => {
+      this.camInstance.on('event', (event) => {
         const {
           Name: name,
           Value: val
-        } = a.message.message.data.simpleItem.$
-        if (name === IsMotionEventName && val) {
-          subscriber.next()
+        } = event.message.message.data.simpleItem.$
+        if (name !== IS_MOTION_EVENT_NAME) {
+          return
         }
+        subscriber.next(val)
       })
     })
   }

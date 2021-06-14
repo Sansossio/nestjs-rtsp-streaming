@@ -56,8 +56,11 @@ export class CameraListener {
       }
       server.onvif
         .motionSensor()
-        .subscribe(() => {
-          console.log(`Camera "${server.name}" motion detected`)
+        .subscribe((motion) => {
+          console.log({
+            camera: server.name,
+            motion
+          })
         })
     }
   }
