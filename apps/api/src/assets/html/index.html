@@ -31,6 +31,9 @@
   })
   socket.on('cameras', function (cameras) {
     for (const camera of cameras) {
+      if (camera === 'random') {
+        continue
+      }
       socket.emit('join-to-room', `camera-${camera}`)
     }
   })
