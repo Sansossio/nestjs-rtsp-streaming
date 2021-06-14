@@ -18,7 +18,6 @@ export class CameraListener {
         ffmpegCmd: './bin/ffmpeg.exe',
         streamingConfig: {
           input: server.input,
-          resolution: '500x500',
           quality: 3
         }
       })
