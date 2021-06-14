@@ -16,7 +16,8 @@ export class CameraListener {
       const subscribe = new RtspSubscriber({
         ffmpegCmd: './bin/ffmpeg.exe',
         streamingConfig: {
-          input: server.input
+          input: server.input,
+          quality: server.quality
         }
       })
 

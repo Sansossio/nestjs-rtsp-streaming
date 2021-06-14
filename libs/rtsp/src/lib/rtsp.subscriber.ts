@@ -33,7 +33,7 @@ export class RtspSubscriber {
       '-loglevel', 'quiet',
       '-i', url,
       '-r', rate.toString(),
-      ...(quality ? ['-q:v', quality.toString()] : []),
+      ...(quality !== undefined ? ['-q:v', quality.toString()] : []),
       ...(resolution ? ['-s', resolution] : []),
       '-f', 'image2',
       '-update', '1',
