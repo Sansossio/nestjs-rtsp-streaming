@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import config from '../../config'
-import { UserModule } from './user/user.module'
+import { CameraModule } from './camera/camera.module'
 import { join } from 'path'
 import { ServeStaticModule } from '@nestjs/serve-static'
 
@@ -14,7 +14,7 @@ import { ServeStaticModule } from '@nestjs/serve-static'
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'assets', 'html')
     }),
-    UserModule
+    CameraModule
   ]
 })
 export class AppModule {}

@@ -1,25 +1,19 @@
 import { RtspSubscriber } from '@nestjs-rtsp-streaming/rtsp'
-import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
-import { Server, Socket } from 'socket.io'
-import { UsersUserListenerDto } from './user.user-listener.dto'
-
-const ALL_RTSP_SERVERS = [
-  {
-    name: 'random',
-    input: 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov'
-  }
-]
+import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
+import { Socket } from 'socket.io'
+import { RTSP_CAMERAS } from '../camera.config'
+import { UserCameraListenerDto } from './user.camera-listener.dto'
 
 @WebSocketGateway()
-export class UserListener {
+export class CameraListener {
   constructor () {
     this.initializeAllStreamins()
   }
 
-  private readonly usersList: UsersUserListenerDto[] = []
+  private readonly usersList: UserCameraListenerDto[] = []
 
   private initializeAllStreamins () {
-    for (const server of ALL_RTSP_SERVERS) {
+    for (const server of RTSP_CAMERAS) {
       const subscribe = new RtspSubscriber({
         ffmpegCmd: './bin/ffmpeg.exe',
         streamingConfig: {
@@ -50,9 +44,6 @@ export class UserListener {
       })
     )
   }
-
-  @WebSocketServer()
-  server: Server
 
   @SubscribeMessage('get-stream')
   getStream (client: Socket, channel: string) {
