@@ -10,6 +10,9 @@
 
 <body>
   <h1>RTSP using nodejs</h1>
+  <div id="online-users">
+    0 users online
+  </div>
   <canvas id="canvas" height='550' width='550'></canvas>
 </body>
 <script src="http://cdn.shinobi.video/js/socket.io.js"></script>
@@ -22,6 +25,9 @@
   let url = ''
   socket.on('connect', function () {
     socket.emit('get-cameras')
+  })
+  socket.on('online-users', function(count) {
+    document.getElementById('online-users').innerHTML = `${count} users online`
   })
   socket.on('cameras', function (cameras) {
     for (const camera of cameras) {
