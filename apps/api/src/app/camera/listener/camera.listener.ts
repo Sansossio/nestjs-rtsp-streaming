@@ -11,10 +11,10 @@ export class CameraListener {
   @WebSocketServer() private readonly server: Server
 
   constructor () {
-    void this.initializeAllStreams()
+    void this.initializeCameras()
   }
 
-  private async initializeAllStreams () {
+  private async initializeCameras () {
     this.camerasRtsp = await Promise.all(
       CAMERAS_CONFIG.map(async (camera) => {
         if (camera.rtsp) {
@@ -33,6 +33,11 @@ export class CameraListener {
       })
     )
 
+    void this.sendRtspToSockets()
+    void this.detectMotion()
+  }
+
+  private async sendRtspToSockets () {
     for (const server of this.camerasRtsp) {
       const subscribe = new RtspSubscriber({})
 
@@ -41,6 +46,19 @@ export class CameraListener {
           input: server.input
         })
         .subscribe(async buffer => this.handleStream(server.name, buffer))
+    }
+  }
+
+  private async detectMotion () {
+    for (const server of this.camerasRtsp) {
+      if (!server.onvif) {
+        continue
+      }
+      server.onvif
+        .motionSensor()
+        .subscribe(() => {
+          console.log(`Camera "${server.name}" motion detected`)
+        })
     }
   }
 
