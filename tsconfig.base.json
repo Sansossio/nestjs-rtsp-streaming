@@ -16,7 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@nestjs-rtsp-streaming/rtsp": ["libs/rtsp/src/index.ts"],
-      "@nestjs-rtsp-streaming/cameras": ["libs/cameras/src/index.ts"]
+      "@nestjs-rtsp-streaming/onvif": ["libs/onvif/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

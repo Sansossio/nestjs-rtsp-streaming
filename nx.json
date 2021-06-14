@@ -28,7 +28,7 @@
     "rtsp-proxy": {
       "tags": []
     },
-    "cameras": {
+    "onvif": {
       "tags": []
     }
   }

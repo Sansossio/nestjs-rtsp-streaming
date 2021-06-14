@@ -46,9 +46,9 @@
   })
   socket.on('cameras', function (cameras) {
     for (const camera of cameras) {
-      const canvas = getOrCreatePlayer(camera)
+      const canvas = getOrCreatePlayer(camera.name)
       loadPlayer({
-        url: `ws://${location.hostname}:3001/stream/camera/${camera}`,
+        url: `ws://${location.hostname}:3001/stream/camera?rtsp=${encodeURIComponent(camera.input)}`,
         canvas
       });
     }

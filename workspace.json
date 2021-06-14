@@ -117,22 +117,22 @@
         }
       }
     },
-    "cameras": {
-      "root": "libs/cameras",
-      "sourceRoot": "libs/cameras/src",
+    "onvif": {
+      "root": "libs/onvif",
+      "sourceRoot": "libs/onvif/src",
       "projectType": "library",
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["libs/cameras/**/*.ts"]
+            "lintFilePatterns": ["libs/onvif/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/cameras"],
+          "outputs": ["coverage/libs/onvif"],
           "options": {
-            "jestConfig": "libs/cameras/jest.config.js",
+            "jestConfig": "libs/onvif/jest.config.js",
             "passWithNoTests": true
           }
         }
