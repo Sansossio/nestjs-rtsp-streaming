@@ -40,6 +40,23 @@ export class Onvif {
     })
   }
 
+  async getDeviceCustomName () {
+    const info = await this.getDeviceInformation()
+    return `${info.manufacturer}-${info.model}-${info.serialNumber}`
+  }
+
+  async getDeviceInformation () {
+    return new Promise<any>((resolve, reject) => {
+      this.camInstance.getDeviceInformation((err, data) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(data)
+      })
+    })
+  }
+
   async getRtspUrl () {
     return new Promise<string>((resolve, reject) => {
       this.camInstance.getStreamUri({ protocol: 'RTSP' }, (err, { uri }) => {

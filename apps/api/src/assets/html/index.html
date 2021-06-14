@@ -24,7 +24,11 @@
 
   function renderMotionSensorsData () {
     const text = motionSensors.reduce((prev, curr) => {
-      prev += `Camara: ${curr.name} <b>${curr.motion ? 'ha' : 'no ha'}</b> detectado movimiento<br>`
+      let conditionalText = 'no ha'
+      if (curr.motion) {
+        conditionalText = 'ha'
+      }
+      prev += `Camara: ${curr.name} <b>${conditionalText}</b> detectado movimiento<br>`
       return prev
     }, '')
     document.getElementById('motion-sensor').innerHTML = text
@@ -70,7 +74,7 @@
       socket.emit('join-to-room', `camera-${camera.name}`)
       const canvas = getOrCreatePlayer(camera.name)
       loadPlayer({
-        url: `ws://${location.hostname}:3001/stream/camera?rtsp=${encodeURIComponent(camera.input)}`,
+        url: `ws://${location.hostname}:3001/stream/camera?rtsp=${encodeURIComponent(camera.rtsp)}`,
         canvas
       });
     }
