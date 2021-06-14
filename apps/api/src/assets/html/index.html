@@ -21,9 +21,14 @@
   const socket = io()
   let url = ''
   socket.on('connect', function () {
-    socket.emit('get-stream', 'random')
+    socket.emit('get-cameras')
   })
-  socket.on('video-data', function (data) {
+  socket.on('cameras', function (cameras) {
+    for (const camera of cameras) {
+      socket.emit('join-to-room', `camera-${camera}`)
+    }
+  })
+  socket.on('camera-data', function (data) {
     const bytes = new Uint8Array(data.buffer)
     const blob = new Blob([bytes], { type: 'application/octet-binary' })
 

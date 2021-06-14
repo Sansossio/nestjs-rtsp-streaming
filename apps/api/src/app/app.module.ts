@@ -4,6 +4,7 @@ import config from '../../config'
 import { CameraModule } from './camera/camera.module'
 import { join } from 'path'
 import { ServeStaticModule } from '@nestjs/serve-static'
+import { AppSocketIO } from './app.socketio'
 
 @Module({
   imports: [
@@ -15,6 +16,9 @@ import { ServeStaticModule } from '@nestjs/serve-static'
       rootPath: join(__dirname, 'assets', 'html')
     }),
     CameraModule
+  ],
+  providers: [
+    AppSocketIO
   ]
 })
 export class AppModule {}
