@@ -1,80 +1,41 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { spawn } from 'child_process'
 import { Observable, of } from 'rxjs'
-import { mergeMap } from 'rxjs/operators'
+import { filter, map, mergeMap, skipWhile } from 'rxjs/operators'
+import { ConnectRtspDto } from './dto/connect.rtsp.dto'
 import { RtspConfig } from './rtsp.config'
 
 const DEFAULT_FFMPEG_CMD = 'ffmpeg'
 const LOGGER_CONTEXT = 'RtspSubscriber'
+
+// https://community.openhab.org/t/how-to-turn-a-cameras-rtsp-stream-into-motion-detection/89906
+const DETECT_MOVEMENT_SENSOR = 0.1
 
 @Injectable()
 export class RtspSubscriber {
   private readonly ffmpegCmd: string = this.config.ffmpegCmd || DEFAULT_FFMPEG_CMD
   private readonly logger = new Logger(LOGGER_CONTEXT)
 
-  constructor (private readonly config: RtspConfig) {
-    this.setDefaultConfigValues()
-  }
+  constructor (private readonly config: RtspConfig) {}
 
-  private setDefaultConfigValues () {
-    this.config.streamingConfig.rate = this.config.streamingConfig.rate || 10
-  }
-
-  private getArgs () {
-    const {
-      streamingConfig: {
-        input: url,
-        quality,
-        rate,
-        resolution
-      }
-    } = this.config
-    return [
-      '-loglevel', 'quiet',
-      '-i', url,
-      '-r', rate.toString(),
-      ...(quality !== undefined ? ['-q:v', quality.toString()] : []),
-      ...(resolution ? ['-s', resolution] : []),
-      '-f', 'image2',
-      '-update', '1',
-      '-'
-    ]
-  }
-
-  private connectToServer () {
-    this.logger.log(`Trying connect to server: ${this.config.streamingConfig.input}`)
+  private connectToServer (args: string[], server: string) {
+    this.logger.log(`Trying connect to server: ${server}`)
     let connected = false
     return new Observable<{ buffer?: Buffer, error: boolean }>((subscribe) => {
-      const command = spawn(this.ffmpegCmd, this.getArgs())
-
+      const command = spawn(this.ffmpegCmd, args)
       command.stdout.on('data', (data) => {
         if (!connected) {
-          this.logger.log(`Connected to server: ${this.config.streamingConfig.input}`)
+          this.logger.log(`Connected to server: ${server}`)
         }
-
         connected = true
 
-        if (data.length <= 1) {
-          return
-        }
-
-        const buffer = Buffer.concat([Buffer.from(''), data])
-
-        const offset = data[data.length - 2].toString(16)
-        const offset2 = data[data.length - 1].toString(16)
-
-        if (offset !== 'ff' || offset2 !== 'd9') {
-          return
-        }
-        subscribe.next({ buffer, error: false })
+        subscribe.next({ buffer: data, error: false })
       })
 
       command.stderr.on('data', data => {
-        this.logger.error(data)
-        subscribe.next({ error: true })
+        subscribe.next({ error: true, buffer: data })
       })
-      command.on('error', data => {
-        this.logger.error(data)
+      command.on('error', () => {
         subscribe.next({ error: true })
       })
       command.on('close', code => {
@@ -84,18 +45,72 @@ export class RtspSubscriber {
     })
   }
 
-  connect (): Observable<Buffer> {
-    return new Observable((subscribe) => {
-      this.connectToServer()
-        .pipe(
-          mergeMap((data) => {
-            if (data.error) {
-              return this.connect()
-            }
-            return of(data)
-          })
-        )
-        .subscribe(data => subscribe.next(data.buffer as Buffer))
-    })
+  motionSensor (input: string) {
+    const args = [
+      '-rtsp_transport', 'tcp',
+      '-i', input,
+      '-vf', `select='gte(scene\\,${DETECT_MOVEMENT_SENSOR})',metadata=print`,
+      '-an',
+      '-f',
+      'null',
+      '-'
+    ]
+    return this.connectToServer(args, input)
+      .pipe(
+        skipWhile(data => data.error && !data.buffer),
+        map((data): string[] => {
+          const text = data?.buffer.toString()
+          return text.match(/lavfi\.scene_score=(.*)/gm)
+        }),
+        filter(val => !!val),
+        map(() => true)
+      )
+  }
+
+  getVideoBuffer (config: ConnectRtspDto): Observable<Buffer> {
+    const {
+      input: url,
+      quality,
+      rate = 10,
+      resolution
+    } = config
+    const args = [
+      '-loglevel', 'quiet',
+      '-i', url,
+      '-r', rate.toString(),
+      ...(quality !== undefined ? ['-q:v', quality.toString()] : []),
+      ...(resolution ? ['-s', resolution] : []),
+      '-f', 'image2',
+      '-update', '1',
+      '-'
+    ]
+    return this.connectToServer(args, config.input)
+      .pipe(
+        skipWhile((data) => {
+          if (!data.buffer) {
+            return false
+          }
+
+          if (data.buffer.length <= 1) {
+            return
+          }
+
+          const offset = data.buffer[data.buffer.length - 2].toString(16)
+          const offset2 = data.buffer[data.buffer.length - 1].toString(16)
+
+          if (offset !== 'ff' || offset2 !== 'd9') {
+            return true
+          }
+
+          return false
+        }),
+        mergeMap((data) => {
+          if (data.error) {
+            return this.getVideoBuffer(config)
+          }
+          return of(data)
+        }),
+        map((data) => data.buffer as Buffer)
+      )
   }
 }

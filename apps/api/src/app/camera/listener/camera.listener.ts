@@ -8,21 +8,18 @@ export class CameraListener {
   @WebSocketServer() server: Server
 
   constructor () {
-    this.initializeAllStreamins()
+    this.initializeAllStreams()
   }
 
-  private initializeAllStreamins () {
+  private initializeAllStreams () {
     for (const server of RTSP_CAMERAS) {
-      const subscribe = new RtspSubscriber({
-        ffmpegCmd: './bin/ffmpeg.exe',
-        streamingConfig: {
-          input: server.input,
-          quality: server.quality
-        }
-      })
+      const subscribe = new RtspSubscriber({})
 
       subscribe
-        .connect()
+        .getVideoBuffer({
+          input: server.input,
+          quality: server.quality
+        })
         .subscribe(async buffer => this.handleStream(server.name, buffer))
     }
   }
