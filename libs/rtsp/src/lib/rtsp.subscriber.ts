@@ -66,7 +66,6 @@ export class RtspSubscriber {
         if (offset !== 'ff' || offset2 !== 'd9') {
           return
         }
-
         subscribe.next({ buffer, error: false })
       })
 
