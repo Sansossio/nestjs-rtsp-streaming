@@ -1,3 +1,8 @@
 module.exports = {
-  projects: ['<rootDir>/apps/api', '<rootDir>/libs/rtsp'],
+  projects: [
+    '<rootDir>/apps/api',
+    '<rootDir>/libs/rtsp',
+    '<rootDir>/apps/ntsp-proxy',
+    '<rootDir>/libs/cameras',
+  ],
 };

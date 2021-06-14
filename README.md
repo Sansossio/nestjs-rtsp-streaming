@@ -14,6 +14,10 @@ And then go to [http://localhsot:3000](http://localhost:3000)
 
 `nx generate @nrwl/nest:application my-app`
 
+### Generate an express application
+
+`nx generate @nrwl/express:application my-app`
+
 ### Generate a serverless application
 
 `nx g @flowaccount/nx-serverless:api-serverless --provider=aws --name=myapi`

@@ -1,7 +1,7 @@
 import { RtspSubscriber } from '@nestjs-rtsp-streaming/rtsp'
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { RTSP_CAMERAS } from '../camera.config'
+import { RTSP_CAMERAS } from '@nestjs-rtsp-streaming/cameras'
 
 @WebSocketGateway()
 export class CameraListener {

@@ -13,12 +13,27 @@
   <div id="online-users">
     0 users online
   </div>
-  <canvas id="canvas" height='550' width='550'></canvas>
 </body>
 <script src="http://cdn.shinobi.video/js/socket.io.js"></script>
-<script src="http://cdn.shinobi.video/js/jquery.min.js"></script>
-<script src="http://cdn.shinobi.video/js/jsmpeg.pipe.js"></script>
+<script src='./js/player.js'></script>
 <script>
+  // Global state
+  const players = []
+
+  function getOrCreatePlayer (name) {
+    const exists = players.find(p => p.name === name)
+    if (exists) {
+      return exists.player
+    }
+    const canvas = document.createElement('canvas')
+    canvas.id = `camera-${name}`
+    document.body.appendChild(canvas)
+    players.push({
+      player: canvas,
+      name
+    })
+    return canvas
+  }
   // Socket
   const canvas = document.getElementById('canvas')
   const socket = io()
@@ -26,31 +41,18 @@
   socket.on('connect', function () {
     socket.emit('get-cameras')
   })
-  socket.on('online-users', function(count) {
+  socket.on('online-users', function (count) {
     document.getElementById('online-users').innerHTML = `${count} users online`
   })
   socket.on('cameras', function (cameras) {
     for (const camera of cameras) {
-      if (camera === 'random') {
-        continue
-      }
-      socket.emit('join-to-room', `camera-${camera}`)
+      const canvas = getOrCreatePlayer(camera)
+      loadPlayer({
+        url: `ws://${location.hostname}:3001/stream/camera/${camera}`,
+        canvas
+      });
     }
   })
-  socket.on('camera-data', function (data) {
-    const bytes = new Uint8Array(data.buffer)
-    const blob = new Blob([bytes], { type: 'application/octet-binary' })
-
-    img.src = URL.createObjectURL(blob)
-  })
-  // Base image
-  const img = new Image
-  const ctx = canvas.getContext("2d")
-
-  img.onload = function () {
-    URL.revokeObjectURL(url)
-    ctx.drawImage(img, 0, 0)
-  }
 </script>
 
 </html>
