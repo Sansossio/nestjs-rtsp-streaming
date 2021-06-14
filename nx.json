@@ -25,7 +25,7 @@
     "rtsp": {
       "tags": []
     },
-    "ntsp-proxy": {
+    "rtsp-proxy": {
       "tags": []
     },
     "cameras": {

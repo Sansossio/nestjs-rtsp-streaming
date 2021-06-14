@@ -72,19 +72,19 @@
         }
       }
     },
-    "ntsp-proxy": {
-      "root": "apps/ntsp-proxy",
-      "sourceRoot": "apps/ntsp-proxy/src",
+    "rtsp-proxy": {
+      "root": "apps/rtsp-proxy",
+      "sourceRoot": "apps/rtsp-proxy/src",
       "projectType": "application",
       "targets": {
         "build": {
           "executor": "@nrwl/node:build",
           "outputs": ["{options.outputPath}"],
           "options": {
-            "outputPath": "dist/apps/ntsp-proxy",
-            "main": "apps/ntsp-proxy/src/main.ts",
-            "tsConfig": "apps/ntsp-proxy/tsconfig.app.json",
-            "assets": ["apps/ntsp-proxy/src/assets"]
+            "outputPath": "dist/apps/rtsp-proxy",
+            "main": "apps/rtsp-proxy/src/main.ts",
+            "tsConfig": "apps/rtsp-proxy/tsconfig.app.json",
+            "assets": ["apps/rtsp-proxy/src/assets"]
           },
           "configurations": {
             "production": {
@@ -98,20 +98,20 @@
         "serve": {
           "executor": "@nrwl/node:execute",
           "options": {
-            "buildTarget": "ntsp-proxy:build"
+            "buildTarget": "rtsp-proxy:build"
           }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["apps/ntsp-proxy/**/*.ts"]
+            "lintFilePatterns": ["apps/rtsp-proxy/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/apps/ntsp-proxy"],
+          "outputs": ["coverage/apps/rtsp-proxy"],
           "options": {
-            "jestConfig": "apps/ntsp-proxy/jest.config.js",
+            "jestConfig": "apps/rtsp-proxy/jest.config.js",
             "passWithNoTests": true
           }
         }

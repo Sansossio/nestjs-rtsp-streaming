@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv'
 import { RTSP_CAMERAS } from '@nestjs-rtsp-streaming/cameras'
 import rtspRelay = require('rtsp-relay')
 
-dotenv.config({ path: './apps/ntsp-proxy/.env' })
+dotenv.config({ path: './apps/rtsp-proxy/.env' })
 
 const app = express()
 
