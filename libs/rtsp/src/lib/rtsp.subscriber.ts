@@ -1,15 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { spawn } from 'child_process'
 import { Observable, of } from 'rxjs'
-import { filter, map, mergeMap, skipWhile } from 'rxjs/operators'
+import { map, mergeMap, skipWhile } from 'rxjs/operators'
 import { ConnectRtspDto } from './dto/connect.rtsp.dto'
 import { RtspConfig } from './rtsp.config'
 
 const DEFAULT_FFMPEG_CMD = 'ffmpeg'
 const LOGGER_CONTEXT = 'RtspSubscriber'
-
-// https://community.openhab.org/t/how-to-turn-a-cameras-rtsp-stream-into-motion-detection/89906
-const DETECT_MOVEMENT_SENSOR = 0.1
 
 @Injectable()
 export class RtspSubscriber {
@@ -43,28 +40,6 @@ export class RtspSubscriber {
         subscribe.next({ error: true })
       })
     })
-  }
-
-  motionSensor (input: string) {
-    const args = [
-      '-rtsp_transport', 'tcp',
-      '-i', input,
-      '-vf', `select='gte(scene\\,${DETECT_MOVEMENT_SENSOR})',metadata=print`,
-      '-an',
-      '-f',
-      'null',
-      '-'
-    ]
-    return this.connectToServer(args, input)
-      .pipe(
-        skipWhile(data => data.error && !data.buffer),
-        map((data): string[] => {
-          const text = data?.buffer.toString()
-          return text.match(/lavfi\.scene_score=(.*)/gm)
-        }),
-        filter(val => !!val),
-        map(() => true)
-      )
   }
 
   getVideoBuffer (config: ConnectRtspDto): Observable<Buffer> {
