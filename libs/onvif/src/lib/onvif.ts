@@ -1,6 +1,7 @@
 import { Cam } from 'onvif'
 import { RegisterCamera } from './dto/register-camera'
 import { Observable } from 'rxjs'
+import { GetDevice } from './type'
 
 const DEFAULT_ONVIF_PORT = 2020
 const IS_MOTION_EVENT_NAME = 'IsMotion'
@@ -40,12 +41,12 @@ export class Onvif {
     })
   }
 
-  async getDeviceCustomName () {
+  async getDeviceCustomName (): Promise<string> {
     const info = await this.getDeviceInformation()
     return `${info.manufacturer}-${info.model}-${info.serialNumber}`
   }
 
-  async getDeviceInformation () {
+  async getDeviceInformation (): Promise<GetDevice> {
     return new Promise<any>((resolve, reject) => {
       this.camInstance.getDeviceInformation((err, data) => {
         if (err) {
@@ -57,8 +58,8 @@ export class Onvif {
     })
   }
 
-  async getRtspUrl () {
-    return new Promise<string>((resolve, reject) => {
+  async getRtspUrl (): Promise<string> {
+    return new Promise((resolve, reject) => {
       this.camInstance.getStreamUri({ protocol: 'RTSP' }, (err, { uri }) => {
         if (err) {
           reject(err)
@@ -69,8 +70,8 @@ export class Onvif {
     })
   }
 
-  motionSensor () {
-    return new Observable<boolean>((subscriber) => {
+  motionSensor (): Observable<boolean> {
+    return new Observable((subscriber) => {
       this.camInstance.on('event', (event) => {
         const {
           Name: name,
