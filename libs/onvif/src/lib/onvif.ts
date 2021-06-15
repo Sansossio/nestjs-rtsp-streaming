@@ -48,7 +48,7 @@ export class Onvif {
   }
 
   async getDeviceInformation (): Promise<GetDevice> {
-    return new Promise<any>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       if (this.deviceInfo) {
         resolve(this.deviceInfo)
         return
