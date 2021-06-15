@@ -1,16 +1,18 @@
 import * as express from 'express'
+import * as expressWs from 'express-ws'
 import * as dotenv from 'dotenv'
 import rtspRelay = require('rtsp-relay')
 
 dotenv.config({ path: './apps/rtsp-proxy/.env' })
 
 const app = express()
+const { app: appWs } = expressWs(app)
 
 const { proxy } = rtspRelay(app)
 
-;(app as any).ws('/stream/camera', (ws, req) => {
+appWs.ws('/stream/camera', (ws, req) => {
   return proxy({
-    url: req.query.rtsp
+    url: req.query.rtsp.toString()
   })(ws)
 })
 
