@@ -44,7 +44,7 @@ export class Onvif {
 
   async getDeviceCustomName (): Promise<string> {
     const info = await this.getDeviceInformation()
-    return `${info.manufacturer}-${info.model}-${info.serialNumber}`
+    return `${info.manufacturer}-${info.model}#${info.serialNumber}`
   }
 
   async getDeviceInformation (): Promise<GetDevice> {
