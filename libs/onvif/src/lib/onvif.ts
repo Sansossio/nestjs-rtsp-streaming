@@ -8,6 +8,7 @@ const IS_MOTION_EVENT_NAME = 'IsMotion'
 
 export class Onvif {
   private camInstance: Cam
+  private deviceInfo: GetDevice
 
   constructor (
     private readonly config: RegisterCamera
@@ -48,12 +49,17 @@ export class Onvif {
 
   async getDeviceInformation (): Promise<GetDevice> {
     return new Promise<any>((resolve, reject) => {
+      if (this.deviceInfo) {
+        resolve(this.deviceInfo)
+        return
+      }
       this.camInstance.getDeviceInformation((err, data) => {
         if (err) {
           reject(err)
           return
         }
-        resolve(data)
+        this.deviceInfo = GetDevice.fromData(data)
+        resolve(this.deviceInfo)
       })
     })
   }
