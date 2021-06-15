@@ -13,6 +13,16 @@
       "protocol": "inspector",
       "sourceMaps": true,
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "express proxy",
+      "port": 9230,
+      "restart": true,
+      "protocol": "inspector",
+      "sourceMaps": true,
+      "internalConsoleOptions": "neverOpen"
     }
   ]
 }

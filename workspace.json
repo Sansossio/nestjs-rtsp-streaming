@@ -98,7 +98,9 @@
         "serve": {
           "executor": "@nrwl/node:execute",
           "options": {
-            "buildTarget": "rtsp-proxy:build"
+            "buildTarget": "rtsp-proxy:build",
+            "inspect": true,
+            "port": 9230
           }
         },
         "lint": {

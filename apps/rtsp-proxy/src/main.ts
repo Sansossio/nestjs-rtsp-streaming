@@ -16,7 +16,7 @@ appWs.ws('/stream/camera', (ws, req) => {
   })(ws)
 })
 
-const port = +process.env.APP_PORT || 3333
+const port = +process.env.APP_PORT || 3001
 
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`)
